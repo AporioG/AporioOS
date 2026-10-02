@@ -1,0 +1,7 @@
+build/
+*.o
+*.bin
+*.iso
+user_elf
+injector
+.DS_Store
