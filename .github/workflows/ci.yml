@@ -1,0 +1,38 @@
+name: Aporia OS Build Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Compile Kernel & Build Disk Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install x86 Toolchain & Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gcc-multilib nasm qemu-system-x86
+
+      - name: Compile and Link Operating System
+        run: |
+          make clean
+          make
+
+      - name: Verify Disk Image Generation
+        run: |
+          test -f build/os-image.bin || exit 1
+          ls -lh build/os-image.bin
+
+      - name: Upload Bootable Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aporia-os-v1.0.0-image
+          path: build/os-image.bin
+          retention-days: 7
